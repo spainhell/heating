@@ -16,8 +16,26 @@ public class MainActivity extends AppCompatActivity {
 
     public void btnChangeRoomsHeatingClicked(View view) {
         Intent intent = new Intent(this, RoomHeatingActivity.class);
-        String[] rooms = new String[]{"Ložnice", "Kuchyň", "Obývák"};
-        intent.putExtra("RoomsList", rooms);
+
+        CRoomHeatingParams heatingParams = new CRoomHeatingParams();
+        heatingParams.rooms = new String[]{"Loznice", "Kuchyn", "Obyvak", "Kotelna", "Pokojik"};
+        heatingParams.selectedRoom = heatingParams.rooms[0];
+        heatingParams.setTemperature = 20.0;
+
+        intent.putExtra("HeatingParams", heatingParams);
+        startActivity(intent);
+    }
+
+    public void btnChangeParamsClicked(View view) {
+        Intent intent = new Intent(this, ParametersActivity.class);
+
+        CSystemParams systemParams = new CSystemParams();
+        systemParams.Antifreeze = false;
+        systemParams.Heating = false;
+        systemParams.HotWater = true;
+        systemParams.Delta = 0.5;
+
+        intent.putExtra("SystemParams", systemParams);
         startActivity(intent);
     }
 }

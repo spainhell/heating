@@ -15,11 +15,13 @@ public class RoomHeatingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_room_heating);
 
         Intent i = getIntent();
-        String[] rooms = i.getStringArrayExtra("RoomsList");
 
-        if (rooms != null) {
+        CRoomHeatingParams heatingParams = (CRoomHeatingParams) i.getSerializableExtra("HeatingParams");
+
+
+        if (heatingParams != null) {
             Spinner roomsSpinner = findViewById(R.id.room_spinner);
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, rooms);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, heatingParams.rooms);
             roomsSpinner.setAdapter(adapter);
         }
 
