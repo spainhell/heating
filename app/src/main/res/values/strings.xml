@@ -22,4 +22,5 @@
     <string name="label_antifreeze">Antifreeze</string>
     <string name="label_delta" translatable="false">Delta</string>
     <string name="text_title_heating">Room Heating</string>
+    <string name="title_activity_main">MainActivity</string>
 </resources>
