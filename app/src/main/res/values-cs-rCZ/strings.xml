@@ -3,7 +3,7 @@
     <string name="app_name">Vytápění</string>
     <string name="action_settings">Nastavení</string>
     <string name="label_temperatures">Teploty</string>
-    <string name="text_title_parameters">Parametry</string>
+    <string name="text_title_parameters">Parametry vytápění</string>
     <string name="text_title_overview">Přehled</string>
     <string name="label_heating">Vytápění</string>
     <string name="label_hot_water">Ohřev TUV</string>
@@ -20,4 +20,6 @@
     <string name="label_password">Heslo:</string>
     <string name="text_title_settings">Nastavení</string>
     <string name="btn_save">Uložit</string>
+    <string name="label_antifreeze">Protizámrz</string>
+    <string name="text_title_heating">Vytápění místností</string>
 </resources>
