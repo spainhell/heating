@@ -14,4 +14,10 @@
     <string name="room_living_room">Obývák</string>
     <string name="room_small_room">Pokojík</string>
     <string name="room_boiler_room">Kotelna</string>
+    <string name="btn_back">Zpět</string>
+    <string name="label_url">API URL adresa:</string>
+    <string name="label_login">Uživatelské jméno:</string>
+    <string name="label_password">Heslo:</string>
+    <string name="text_title_settings">Nastavení</string>
+    <string name="btn_save">Uložit</string>
 </resources>
