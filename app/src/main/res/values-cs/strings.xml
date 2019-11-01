@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Vytápění</string>
+    <string name="action_settings">Nastavení</string>
+    <string name="label_temperatures">Teploty</string>
+    <string name="text_title_parameters">Parametry vytápění</string>
+    <string name="text_title_overview">Přehled</string>
+    <string name="label_heating">Vytápění</string>
+    <string name="label_hot_water">Ohřev TUV</string>
+    <string name="btn_edit">Upravit</string>
+    <string name="btn_change">Změnit</string>
+    <string name="room_bedroom">Ložnice</string>
+    <string name="room_kitchen">Kuchyň</string>
+    <string name="room_living_room">Obývák</string>
+    <string name="room_small_room">Pokojík</string>
+    <string name="room_boiler_room">Kotelna</string>
+    <string name="btn_back">Zpět</string>
+    <string name="label_url">API URL adresa:</string>
+    <string name="label_login">Uživatelské jméno:</string>
+    <string name="label_password">Heslo:</string>
+    <string name="text_title_settings">Nastavení</string>
+    <string name="btn_save">Uložit</string>
+    <string name="label_antifreeze">Protizámrz</string>
+    <string name="text_title_heating">Vytápění místností</string>
+    <string name="title_activity_main">Přehled</string>
+</resources>
