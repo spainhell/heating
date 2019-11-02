@@ -3,12 +3,13 @@ package eu.spanhel.heating;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.util.JsonReader;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -22,51 +23,36 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
-
 public class MainActivity extends AppCompatActivity {
+    JSONArray temperArray;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getConfigFromApi();
         getTemperaturesFromApi();
     }
 
-    protected void getTemperaturesFromApi() {
-        //final String[] temperatures = new String[1];
-
+    protected void getConfigFromApi() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="https://pistovice.spanhel.eu:1080/api/temperatures";
+        String url ="https://pistovice.spanhel.eu:1080/api/config";
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         try {
-                            TableLayout table = findViewById(R.id.tableLayout);
-
-                            JSONArray obj = new JSONArray(response);
-
-                            TextView labelTemperatures = findViewById(R.id.label_temperatures);
-                            labelTemperatures.setText(String.format("Teploty v %s", obj.getJSONObject(0).get("time")));
-
-                            for (int i = 0; i < obj.length(); i++) {
-                                JSONObject jo = obj.getJSONObject(i);
-                                String a = jo.getString("time");
-                            }
+                            // z API prijde JSON objekt
+                            JSONObject configJson = new JSONObject(response);
+                            String place = configJson.getString("sensor");
 
 
-                            EditText et = findViewById(R.id.editText);
-                            //et.setText(obj.getString());
                         } catch (JSONException e) {
+                            TextView tvDateTime = findViewById(R.id.label_datetime);
+                            tvDateTime.setText("ERROR");
                             e.printStackTrace();
                         }
                     }
@@ -80,8 +66,76 @@ public class MainActivity extends AppCompatActivity {
         queue.add(stringRequest);
     }
 
+    protected void getTemperaturesFromApi() {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url ="https://pistovice.spanhel.eu:1080/api/temperatures";
 
-    protected void getTemperaturesFromApi2() throws IOException {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            // z API prijde pole teplot
+                            temperArray = new JSONArray(response);
+
+                            TextView tvDateTime = findViewById(R.id.label_datetime);
+                            tvDateTime.setText(String.format("%s", temperArray.getJSONObject(0).get("time")));
+
+                            addRoomsToTable();
+
+                        } catch (JSONException e) {
+                            TextView tvDateTime = findViewById(R.id.label_datetime);
+                            tvDateTime.setText("ERROR");
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //temperatures[0] = "That didn't work!";
+            }
+        });
+
+        queue.add(stringRequest);
+    }
+
+    protected void addRoomsToTable() throws JSONException {
+        TableLayout table = findViewById(R.id.tableLayout);
+
+        for (int i = 0; i < temperArray.length(); i++) {
+            JSONObject jo = temperArray.getJSONObject(i);
+            String place = jo.getString("place");
+            Double temperature = jo.getDouble("temperature");
+
+            TableRow row = new TableRow(this);
+            TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
+            row.setLayoutParams(lp);
+            TextView tvRoom = new TextView(this);
+            tvRoom.setText(place);
+            tvRoom.setPadding(3, 3, 3, 3);
+            TextView tvTemperature = new TextView(this);
+            tvTemperature.setGravity(Gravity.END);
+            tvTemperature.setPadding(3, 3, 3, 3);
+            tvTemperature.setText(String.format("%s °C", temperature));
+
+            if (temperature < 10) {
+                tvTemperature.setTextColor(Color.parseColor("#0000ff"));
+            }
+            else if (temperature > 22) {
+                tvTemperature.setTextColor(Color.parseColor("#ff0000"));
+            }
+            else {
+                tvTemperature.setTextColor(Color.parseColor("#00ff00"));
+            }
+
+            row.addView(tvRoom);
+            row.addView(tvTemperature);
+            table.addView(row, i);
+        }
+    }
+
+
+    /*protected void getTemperaturesFromApi2() throws IOException {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
@@ -125,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-    }
+    }*/
 
     protected void btnChangeRoomsHeatingClicked(View view) {
         Intent intent = new Intent(this, RoomHeatingActivity.class);

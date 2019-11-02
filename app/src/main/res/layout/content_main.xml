@@ -82,6 +82,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/switch_hot_water" />
 
+    <TextView
+        android:id="@+id/label_datetime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="36dp"
+        android:text="1970-01-01 00:00:00"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/label_temperatures"
+        app:layout_constraintTop_toBottomOf="@+id/switch_hot_water" />
+
     <TableLayout
         android:id="@+id/tableLayout"
         android:layout_width="300dp"
@@ -94,93 +107,6 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/label_temperatures">
-
-        <TableRow
-            android:id="@+id/row_living_room"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:padding="3dip"
-                android:text="@string/room_living_room" />
-
-            <TextView
-                android:gravity="end"
-                android:padding="3dip"
-                android:text="20.0 °C" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/row_kitchen"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:padding="3dip"
-                android:text="@string/room_kitchen" />
-
-            <TextView
-                android:gravity="end"
-                android:padding="3dip"
-                android:text="20.0 °C" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/row_bedroom"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:padding="3dip"
-                android:text="@string/room_bedroom" />
-
-            <TextView
-                android:gravity="end"
-                android:padding="3dip"
-                android:text="20.0 °C" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/row_small_room"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:padding="3dip"
-                android:text="@string/room_small_room" />
-
-            <TextView
-                android:gravity="end"
-                android:padding="3dip"
-                android:text="20.0 °C" />
-        </TableRow>
-
-        <TableRow
-            android:id="@+id/row_boiler_room"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:padding="3dip"
-                android:text="@string/room_boiler_room" />
-
-            <TextView
-                android:gravity="end"
-                android:padding="3dip"
-                android:text="20.0 °C" />
-        </TableRow>
-
     </TableLayout>
-
-    <EditText
-        android:id="@+id/editText"
-        android:layout_width="249dp"
-        android:layout_height="111dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Name"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_edit_rooms" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
