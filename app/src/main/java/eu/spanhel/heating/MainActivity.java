@@ -8,15 +8,18 @@ import android.graphics.drawable.shapes.RectShape;
 import android.os.Build;
 import android.os.Bundle;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -32,6 +35,9 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends AppCompatActivity {
     private JSONArray temperArray;
@@ -142,6 +148,8 @@ public class MainActivity extends AppCompatActivity {
     protected void addRoomsToTable() throws JSONException {
         TableLayout table = findViewById(R.id.tableLayout);
 
+        table.removeAllViews();
+
         for (int i = 0; i < temperArray.length(); i++) {
             JSONObject jo = temperArray.getJSONObject(i);
             String place = jo.getString("place");
@@ -191,11 +199,88 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_OK) return;
+        // návrat z ActivityRoomHeating
+        if (requestCode == 0) {
+            // TextView teploty = findViewById(R.id.label_temperatures);
+            // teploty.setText("OK");
+            if (data != null) {
+                String room = data.getStringExtra("room");
+                Double temperature = data.getDoubleExtra("temperature", 0.0);
+                setNewRoomOrTemperature(room, temperature);
+            }
+        }
+    }
+
+    protected void setNewRoomOrTemperature(String room, Double temperature) {
+        // nastavíme novou místnost
+        if (!heatingParams.selectedRoom.equals(room)) {
+            JSONObject jsonData = new JSONObject();
+            try {
+                jsonData.put("parameter", "sensor");
+                jsonData.put("value", room);
+                sendConfigToApi(jsonData);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+        // nastavíme novou teplotu
+        if (!heatingParams.setTemperature.equals(temperature)) {
+            JSONObject jsonData = new JSONObject();
+            try {
+                jsonData.put("parameter", "temperature");
+                jsonData.put("value", temperature);
+                sendConfigToApi(jsonData);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    protected void sendConfigToApi(JSONObject jsonData) {
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url ="https://pistovice.spanhel.eu:1080/api/config";
+        final String requestBody = jsonData.toString();
+
+        StringRequest  jsonReq = new StringRequest (
+                Request.Method.PUT, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                getConfigFromApi();
+                getTemperaturesFromApi();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                getConfigFromApi();
+                getTemperaturesFromApi();
+            }
+        }) {
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+
+            @Override
+            public byte[] getBody() {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    return requestBody.getBytes(StandardCharsets.UTF_8);
+                }
+                return null;
+            }
+        };
+
+        queue.add(jsonReq);
+    }
 
     public void btnChangeRoomsHeatingClicked(View view) {
         Intent intent = new Intent(this, RoomHeatingActivity.class);
         intent.putExtra("HeatingParams", heatingParams);
-        startActivity(intent);
+        startActivityForResult(intent, 0);
     }
 
     public void btnChangeParamsClicked(View view) {

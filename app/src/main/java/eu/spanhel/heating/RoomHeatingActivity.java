@@ -21,18 +21,29 @@ public class RoomHeatingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_room_heating);
 
-        Intent i = getIntent();
+        Intent intent = getIntent();
 
-        CRoomHeatingParams heatingParams = (CRoomHeatingParams) i.getSerializableExtra("HeatingParams");
+        CRoomHeatingParams heatingParams = (CRoomHeatingParams) intent.getSerializableExtra("HeatingParams");
 
         etTemper = findViewById(R.id.editTemper);
 
         if (heatingParams != null) {
             Spinner roomsSpinner = findViewById(R.id.room_spinner);
+            roomsSpinner.setAdapter(null);
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, heatingParams.rooms);
             roomsSpinner.setAdapter(adapter);
             newTemperature = heatingParams.setTemperature;
             etTemper.setText(String.format(Locale.ENGLISH, "%.1f", newTemperature));
+
+            for (int i = 0; i < heatingParams.rooms.size(); i++) {
+                //String r1 = heatingParams.selectedRoom;
+                //String r2 = heatingParams.rooms.get(i);
+
+                if (heatingParams.rooms.get(i).equals(heatingParams.selectedRoom)) {
+                    roomsSpinner.setSelection(i);
+                    break;
+                }
+            }
         }
     }
 
@@ -44,5 +55,19 @@ public class RoomHeatingActivity extends AppCompatActivity {
     public void btnPlusOnClick(View view) {
         newTemperature += 0.5;
         etTemper.setText(String.format(Locale.ENGLISH, "%.1f", newTemperature));
+    }
+
+    public void btnSaveOnClick(View view) {
+        Intent data = new Intent();
+        Spinner roomsSpinner = findViewById(R.id.room_spinner);
+        data.putExtra("room", roomsSpinner.getSelectedItem().toString());
+        data.putExtra("temperature", newTemperature);
+        setResult(RESULT_OK, data);
+        finish();
+    }
+
+    public void btnBackClick(View view) {
+        setResult(RESULT_CANCELED);
+        finish();
     }
 }
