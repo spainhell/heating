@@ -191,20 +191,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    protected void btnChangeRoomsHeatingClicked(View view) {
-        /*Intent intent = new Intent(this, RoomHeatingActivity.class);
 
-        CRoomHeatingParams heatingParams = new CRoomHeatingParams();
-        heatingParams.rooms = new String[]{"Loznice", "Kuchyn", "Obyvak", "Kotelna", "Pokojik"};
-        heatingParams.selectedRoom = heatingParams.rooms[0];
-        heatingParams.setTemperature = 20.0;
-
+    public void btnChangeRoomsHeatingClicked(View view) {
+        Intent intent = new Intent(this, RoomHeatingActivity.class);
         intent.putExtra("HeatingParams", heatingParams);
-        startActivity(intent);*/
+        startActivity(intent);
     }
 
-    protected void btnChangeParamsClicked(View view) {
-        /*Intent intent = new Intent(this, ParametersActivity.class);
+    public void btnChangeParamsClicked(View view) {
+        Intent intent = new Intent(this, ParametersActivity.class);
 
         CSystemParams systemParams = new CSystemParams();
         systemParams.Antifreeze = false;
@@ -213,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
         systemParams.Delta = 0.5;
 
         intent.putExtra("SystemParams", systemParams);
-        startActivity(intent);*/
+        startActivity(intent);
     }
 
     @Override
@@ -237,4 +232,5 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }
