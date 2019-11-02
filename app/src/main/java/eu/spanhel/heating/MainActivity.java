@@ -1,16 +1,12 @@
 package eu.spanhel.heating;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.RectShape;
+import android.os.Build;
 import android.os.Bundle;
-import android.view.Gravity;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -18,19 +14,45 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
+import android.view.Gravity;
+import android.view.View;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Switch;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
-    JSONArray temperArray;
-
+    private JSONArray temperArray;
+    private CSystemParams sysParams;
+    private CRoomHeatingParams heatingParams;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
 
         getConfigFromApi();
         getTemperaturesFromApi();
@@ -47,8 +69,18 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             // z API prijde JSON objekt
                             JSONObject configJson = new JSONObject(response);
-                            String place = configJson.getString("sensor");
 
+                            sysParams = new CSystemParams();
+                            sysParams.Antifreeze = configJson.getString("antifreeze").equals("true");
+                            sysParams.Heating = configJson.getString("heating").equals("true");
+                            sysParams.HotWater = configJson.getString("hotwater").equals("true");
+                            sysParams.Delta = Double.parseDouble(configJson.getString("delta"));
+
+                            heatingParams = new CRoomHeatingParams();
+                            heatingParams.selectedRoom = configJson.getString("sensor");
+                            heatingParams.setTemperature = Double.parseDouble(configJson.getString("temperature"));
+
+                            setSwitches();
 
                         } catch (JSONException e) {
                             TextView tvDateTime = findViewById(R.id.label_datetime);
@@ -64,6 +96,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         queue.add(stringRequest);
+    }
+
+    protected void setSwitches() {
+        Switch swHeating = findViewById(R.id.switch_heating);
+        Switch swHotWater = findViewById(R.id.switch_hot_water);
+
+        swHeating.setChecked(sysParams.Heating);
+        swHotWater.setChecked(sysParams.HotWater);
     }
 
     protected void getTemperaturesFromApi() {
@@ -107,6 +147,9 @@ public class MainActivity extends AppCompatActivity {
             String place = jo.getString("place");
             Double temperature = jo.getDouble("temperature");
 
+            // vlozime mistnost mezi mistnosti
+            heatingParams.rooms.add(place);
+
             TableRow row = new TableRow(this);
             TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT);
             row.setLayoutParams(lp);
@@ -125,64 +168,31 @@ public class MainActivity extends AppCompatActivity {
                 tvTemperature.setTextColor(Color.parseColor("#ff0000"));
             }
             else {
-                tvTemperature.setTextColor(Color.parseColor("#00ff00"));
+                tvTemperature.setTextColor(Color.parseColor("#006400"));
             }
 
             row.addView(tvRoom);
             row.addView(tvTemperature);
+
+            if (place.equals(heatingParams.selectedRoom)) {
+                tvRoom.setText(String.format("%s (pož. %s °C)", place, heatingParams.setTemperature));
+
+                ShapeDrawable sd = new ShapeDrawable();
+                sd.setShape(new RectShape());
+                sd.getPaint().setColor(Color.BLACK);
+                sd.getPaint().setStrokeWidth(2f);
+                sd.getPaint().setStyle(Paint.Style.STROKE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    row.setBackground(sd);
+                }
+            }
+
             table.addView(row, i);
         }
     }
 
-
-    /*protected void getTemperaturesFromApi2() throws IOException {
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    URL url = new URL("https://pistovice.spanhel.eu:1080/api/temperatures");
-                    HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
-                    urlConnection.setRequestProperty("User-Agent", "Android-0.1");
-                    urlConnection.setRequestProperty("Accept", "application/json");
-
-                    if (urlConnection.getResponseCode() == 200) {
-                        InputStream responseBody = urlConnection.getInputStream();
-                        InputStreamReader responseBodyReader =
-                                new InputStreamReader(responseBody, "UTF-8");
-                        JsonReader jsonReader = new JsonReader(responseBodyReader);
-
-                        jsonReader.beginObject(); // Start processing the JSON object
-                        while (jsonReader.hasNext()) { // Loop through all keys
-                            String key = jsonReader.nextName(); // Fetch the next key
-                            if (key.equals("organization_url")) { // Check if desired key
-                                // Fetch the value as a String
-                                String value = jsonReader.nextString();
-
-                                // Do something with the value
-                                // ...
-
-                                break; // Break out of the loop
-                            } else {
-                                jsonReader.skipValue(); // Skip values of other keys
-                            }
-                        }
-
-                        jsonReader.close();
-
-                    } else {
-                        // Error handling code goes here
-                    }
-                    urlConnection.disconnect();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-    }*/
-
     protected void btnChangeRoomsHeatingClicked(View view) {
-        Intent intent = new Intent(this, RoomHeatingActivity.class);
+        /*Intent intent = new Intent(this, RoomHeatingActivity.class);
 
         CRoomHeatingParams heatingParams = new CRoomHeatingParams();
         heatingParams.rooms = new String[]{"Loznice", "Kuchyn", "Obyvak", "Kotelna", "Pokojik"};
@@ -190,11 +200,11 @@ public class MainActivity extends AppCompatActivity {
         heatingParams.setTemperature = 20.0;
 
         intent.putExtra("HeatingParams", heatingParams);
-        startActivity(intent);
+        startActivity(intent);*/
     }
 
     protected void btnChangeParamsClicked(View view) {
-        Intent intent = new Intent(this, ParametersActivity.class);
+        /*Intent intent = new Intent(this, ParametersActivity.class);
 
         CSystemParams systemParams = new CSystemParams();
         systemParams.Antifreeze = false;
@@ -203,6 +213,28 @@ public class MainActivity extends AppCompatActivity {
         systemParams.Delta = 0.5;
 
         intent.putExtra("SystemParams", systemParams);
-        startActivity(intent);
+        startActivity(intent);*/
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

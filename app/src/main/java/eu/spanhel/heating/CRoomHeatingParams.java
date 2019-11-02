@@ -1,13 +1,14 @@
 package eu.spanhel.heating;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 class CRoomHeatingParams implements Serializable {
-    String[] rooms;
+    ArrayList<String> rooms;
     String selectedRoom;
     Double setTemperature;
 
     CRoomHeatingParams() {
-        rooms = new String[5];
+        rooms = new ArrayList<>();
     }
 }
