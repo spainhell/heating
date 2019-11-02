@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
     protected void getConfigFromApi() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="https://pistovice.spanhel.eu:1080/api/config";
+        String url ="https://localhost/api/config";
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
     protected void getTemperaturesFromApi() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="https://pistovice.spanhel.eu:1080/api/temperatures";
+        String url ="https://localhost/api/temperatures";
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
@@ -243,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
 
     protected void sendConfigToApi(JSONObject jsonData) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="https://pistovice.spanhel.eu:1080/api/config";
+        String url ="https://localhost/api/config";
         final String requestBody = jsonData.toString();
 
         StringRequest  jsonReq = new StringRequest (
