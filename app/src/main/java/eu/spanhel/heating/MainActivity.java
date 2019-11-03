@@ -1,6 +1,8 @@
 package eu.spanhel.heating;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.ShapeDrawable;
@@ -27,6 +29,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -39,10 +42,14 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
+import static android.app.PendingIntent.getActivity;
+
 public class MainActivity extends AppCompatActivity {
     private JSONArray temperArray;
     private CSystemParams sysParams;
     private CRoomHeatingParams heatingParams;
+    private CSetting appSettings;
+    private SharedPreferences pref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,22 +67,51 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        getConfigFromApi();
-        getTemperaturesFromApi();
+        if (!loadConfiguration()) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.putExtra("AppSettings", appSettings);
+            startActivityForResult(intent, 9);
+        }
+
+        if (appSettings.url != null) {
+            getConfigFromApi();
+            getTemperaturesFromApi();
+        }
+    }
+
+    protected Boolean loadConfiguration() {
+        pref = getApplicationContext().getSharedPreferences("Settings", 0);
+        appSettings = new CSetting();
+        appSettings.url = pref.getString("url", null);
+        appSettings.username = pref.getString("username", null);
+        appSettings.password = pref.getString("password", null);
+        appSettings.url_distrib = pref.getString("url_distrib", null);
+        return appSettings.url != null;
+    }
+
+    protected void saveConfiguration() {
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("url", appSettings.url);
+        editor.putString("username", appSettings.username);
+        editor.putString("password", appSettings.password);
+        //editor.apply();
+        editor.commit();
     }
 
     protected void getConfigFromApi() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="https://localhost/api/config";
+        String url ="https://" + appSettings.url + "/api/config";
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         try {
+                            Button btnEditHeating = findViewById(R.id.btn_edit_heating);
+                            btnEditHeating.setEnabled(true);
+
                             // z API prijde JSON objekt
                             JSONObject configJson = new JSONObject(response);
-
                             sysParams = new CSystemParams();
                             sysParams.Antifreeze = configJson.getString("antifreeze").equals("true");
                             sysParams.Heating = configJson.getString("heating").equals("true");
@@ -114,13 +150,15 @@ public class MainActivity extends AppCompatActivity {
 
     protected void getTemperaturesFromApi() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="https://localhost/api/temperatures";
+        String url ="https://" + appSettings.url + "/api/temperatures";
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         try {
+                            Button btnEditRooms = findViewById(R.id.btn_edit_rooms);
+                            btnEditRooms.setEnabled(true);
                             // z API prijde pole teplot
                             temperArray = new JSONArray(response);
 
@@ -205,12 +243,22 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode != RESULT_OK) return;
         // návrat z ActivityRoomHeating
         if (requestCode == 0) {
-            // TextView teploty = findViewById(R.id.label_temperatures);
-            // teploty.setText("OK");
             if (data != null) {
                 String room = data.getStringExtra("room");
                 Double temperature = data.getDoubleExtra("temperature", 0.0);
                 setNewRoomOrTemperature(room, temperature);
+            }
+        }
+        // návrat ze SettingsActivity
+        if (requestCode == 9) {
+            if (data != null) {
+                CSetting newAppSettings = (CSetting) data.getSerializableExtra("newSettings");
+                appSettings = newAppSettings;
+                saveConfiguration();
+                if (appSettings != null && appSettings.url != null) {
+                    getConfigFromApi();
+                    getTemperaturesFromApi();
+                }
             }
         }
     }
@@ -243,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
 
     protected void sendConfigToApi(JSONObject jsonData) {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="https://localhost/api/config";
+        String url ="https://" + appSettings.url + "/api/config";
         final String requestBody = jsonData.toString();
 
         StringRequest  jsonReq = new StringRequest (
