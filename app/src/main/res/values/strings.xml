@@ -1,26 +1,28 @@
 <resources>
     <string name="app_name">Heating</string>
     <string name="action_settings">Settings</string>
-    <string name="text_title_overview">Overview</string>
     <string name="label_temperatures">Temperatures</string>
-    <string name="text_title_parameters">Heating system parameters</string>
+    <string name="text_title_parameters">Heating parameters</string>
+    <string name="text_title_overview">Overview</string>
     <string name="label_heating">Heating</string>
-    <string name="label_hot_water">Hot Water</string>
+    <string name="label_hot_water">Hot water</string>
     <string name="btn_edit">Edit</string>
     <string name="btn_change">Change</string>
-    <string name="room_living_room">Living room</string>
-    <string name="room_kitchen">Kitchen</string>
     <string name="room_bedroom">Bedroom</string>
+    <string name="room_kitchen">Kitchen</string>
+    <string name="room_living_room">Living room</string>
     <string name="room_small_room">Small room</string>
     <string name="room_boiler_room">Boiler room</string>
     <string name="btn_back">Back</string>
     <string name="label_url">API URL address:</string>
-    <string name="label_login">Login</string>
-    <string name="label_password">Password</string>
+    <string name="label_login">Username:</string>
+    <string name="label_password">Password:</string>
     <string name="text_title_settings">Settings</string>
     <string name="btn_save">Save</string>
     <string name="label_antifreeze">Antifreeze</string>
+    <string name="text_title_heating">Room heating</string>
+    <string name="title_activity_main">Overview</string>
+    <string name="loading">Loading …</string>
+    <string name="error">Error</string>
     <string name="label_delta" translatable="false">Delta</string>
-    <string name="text_title_heating">Room Heating</string>
-    <string name="title_activity_main">MainActivity</string>
 </resources>

@@ -23,4 +23,6 @@
     <string name="label_antifreeze">Protizámrz</string>
     <string name="text_title_heating">Vytápění místností</string>
     <string name="title_activity_main">Přehled</string>
+    <string name="loading">Nahrávám ...</string>
+    <string name="error">Chyba</string>
 </resources>
