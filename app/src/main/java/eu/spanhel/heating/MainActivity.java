@@ -68,9 +68,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         if (!loadConfiguration()) {
-            Intent intent = new Intent(this, SettingsActivity.class);
-            intent.putExtra("AppSettings", appSettings);
-            startActivityForResult(intent, 9);
+            onClickMenuSetting(null);
+            //Intent intent = new Intent(this, SettingsActivity.class);
+            //intent.putExtra("AppSettings", appSettings);
+            //startActivityForResult(intent, 9);
         }
 
         if (appSettings.url != null) {
@@ -249,11 +250,32 @@ public class MainActivity extends AppCompatActivity {
                 setNewRoomOrTemperature(room, temperature);
             }
         }
-        // návrat ze SettingsActivity
-        if (requestCode == 9) {
+        // návrat z ActivityParameters
+        else if (requestCode == 1) {
             if (data != null) {
-                CSetting newAppSettings = (CSetting) data.getSerializableExtra("newSettings");
-                appSettings = newAppSettings;
+                CSystemParams newParams = (CSystemParams) data.getSerializableExtra("newParams");
+                boolean paramsChanged = false;
+                if (newParams != null) {
+                    if (newParams.Heating != sysParams.Heating) { paramsChanged = true; }
+                    if (newParams.Antifreeze != sysParams.Antifreeze) { paramsChanged = true; }
+                    if (newParams.HotWater != sysParams.HotWater) { paramsChanged = true; }
+                    if (newParams.Delta != sysParams.Delta) { paramsChanged = true; }
+                }
+                if (paramsChanged) {
+                    // odešleme nastavení na API
+                    saveParameters(newParams);
+                    sysParams = newParams;
+                    // vyžádáme nové načtení dat
+                    getConfigFromApi();
+                    getTemperaturesFromApi();
+                }
+
+            }
+        }
+        // návrat ze SettingsActivity
+        else if (requestCode == 9) {
+            if (data != null) {
+                appSettings = (CSetting) data.getSerializableExtra("newSettings");
                 saveConfiguration();
                 if (appSettings != null && appSettings.url != null) {
                     getConfigFromApi();
@@ -282,6 +304,57 @@ public class MainActivity extends AppCompatActivity {
             try {
                 jsonData.put("parameter", "temperature");
                 jsonData.put("value", temperature);
+                sendConfigToApi(jsonData);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    protected void saveParameters(CSystemParams newParams) {
+        if (newParams == null) return;
+        // nastavime HEATING
+        if (newParams.Heating != sysParams.Heating) {
+            JSONObject jsonData = new JSONObject();
+            try {
+                jsonData.put("parameter", "heating");
+                jsonData.put("value", newParams.Heating ? "true" : "false");
+                sendConfigToApi(jsonData);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // nastavíme HOT WATER
+        if (newParams.HotWater != sysParams.HotWater) {
+            JSONObject jsonData = new JSONObject();
+            try {
+                jsonData.put("parameter", "hotwater");
+                jsonData.put("value", newParams.HotWater ? "true" : "false");
+                sendConfigToApi(jsonData);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // nastavíme ANTIFREEZE
+        if (newParams.Antifreeze != sysParams.Antifreeze) {
+            JSONObject jsonData = new JSONObject();
+            try {
+                jsonData.put("parameter", "antifreeze");
+                jsonData.put("value", newParams.Antifreeze ? "true" : "false");
+                sendConfigToApi(jsonData);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // nastavíme DELTA
+        if (newParams.Delta != sysParams.Delta) {
+            JSONObject jsonData = new JSONObject();
+            try {
+                jsonData.put("parameter", "delta");
+                jsonData.put("value", newParams.Delta);
                 sendConfigToApi(jsonData);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -333,15 +406,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void btnChangeParamsClicked(View view) {
         Intent intent = new Intent(this, ParametersActivity.class);
-
-        CSystemParams systemParams = new CSystemParams();
-        systemParams.Antifreeze = false;
-        systemParams.Heating = false;
-        systemParams.HotWater = true;
-        systemParams.Delta = 0.5;
-
-        intent.putExtra("SystemParams", systemParams);
-        startActivity(intent);
+        intent.putExtra("SystemParams", sysParams);
+        startActivityForResult(intent, 1);
     }
 
     @Override
@@ -366,4 +432,9 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void onClickMenuSetting(MenuItem item) {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        intent.putExtra("AppSettings", appSettings);
+        startActivityForResult(intent, 9);
+    }
 }
