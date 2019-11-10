@@ -268,6 +268,10 @@ public class MainActivity extends AppCompatActivity {
                     // vyžádáme nové načtení dat
                     getConfigFromApi();
                     getTemperaturesFromApi();
+                    CToast.Info(this, "obnovuji data", 3);
+                }
+                else {
+                    CToast.Info(this, "parametry se nezměnily", 2);
                 }
 
             }
@@ -309,6 +313,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        CToast.Info(this, "parametry byly uloženy", 3);
     }
 
     protected void saveParameters(CSystemParams newParams) {
@@ -360,6 +365,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        CToast.Info(this, "parametry byly uloženy", 3);
     }
 
     protected void sendConfigToApi(JSONObject jsonData) {
