@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -58,15 +59,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         if (!loadConfiguration()) {
             onClickMenuSetting(null);
             //Intent intent = new Intent(this, SettingsActivity.class);
@@ -75,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (appSettings.url != null) {
+            showProgressBar(true);
             getConfigFromApi();
             getTemperaturesFromApi();
         }
@@ -100,43 +93,44 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void getConfigFromApi() {
+        // showProgressBar(true);
         RequestQueue queue = Volley.newRequestQueue(this);
         String url ="https://" + appSettings.url + "/api/config";
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            Button btnEditHeating = findViewById(R.id.btn_edit_heating);
-                            btnEditHeating.setEnabled(true);
+            new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                try {
+                    Button btnEditHeating = findViewById(R.id.btn_edit_heating);
+                    btnEditHeating.setEnabled(true);
 
-                            // z API prijde JSON objekt
-                            JSONObject configJson = new JSONObject(response);
-                            sysParams = new CSystemParams();
-                            sysParams.Antifreeze = configJson.getString("antifreeze").equals("true");
-                            sysParams.Heating = configJson.getString("heating").equals("true");
-                            sysParams.HotWater = configJson.getString("hotwater").equals("true");
-                            sysParams.Delta = Double.parseDouble(configJson.getString("delta"));
+                    // z API prijde JSON objekt
+                    JSONObject configJson = new JSONObject(response);
+                    sysParams = new CSystemParams();
+                    sysParams.Antifreeze = configJson.getString("antifreeze").equals("true");
+                    sysParams.Heating = configJson.getString("heating").equals("true");
+                    sysParams.HotWater = configJson.getString("hotwater").equals("true");
+                    sysParams.Delta = Double.parseDouble(configJson.getString("delta"));
 
-                            heatingParams = new CRoomHeatingParams();
-                            heatingParams.selectedRoom = configJson.getString("sensor");
-                            heatingParams.setTemperature = Double.parseDouble(configJson.getString("temperature"));
+                    heatingParams = new CRoomHeatingParams();
+                    heatingParams.selectedRoom = configJson.getString("sensor");
+                    heatingParams.setTemperature = Double.parseDouble(configJson.getString("temperature"));
 
-                            setSwitches();
+                    setSwitches();
 
-                        } catch (JSONException e) {
-                            TextView tvDateTime = findViewById(R.id.label_datetime);
-                            tvDateTime.setText("ERROR");
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //temperatures[0] = "That didn't work!";
-            }
-        });
+                } catch (JSONException e) {
+                    TextView tvDateTime = findViewById(R.id.label_datetime);
+                    tvDateTime.setText("ERROR");
+                    e.printStackTrace();
+                }
+                }
+            }, new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            //temperatures[0] = "That didn't work!";
+        }
+    });
 
         queue.add(stringRequest);
     }
@@ -167,8 +161,10 @@ public class MainActivity extends AppCompatActivity {
                             tvDateTime.setText(String.format("%s", temperArray.getJSONObject(0).get("time")));
 
                             addRoomsToTable();
+                            showProgressBar(false);
 
                         } catch (JSONException e) {
+                            showProgressBar(false);
                             TextView tvDateTime = findViewById(R.id.label_datetime);
                             tvDateTime.setText("ERROR");
                             e.printStackTrace();
@@ -245,6 +241,7 @@ public class MainActivity extends AppCompatActivity {
         // návrat z ActivityRoomHeating
         if (requestCode == 0) {
             if (data != null) {
+                showProgressBar(true);
                 String room = data.getStringExtra("room");
                 Double temperature = data.getDoubleExtra("temperature", 0.0);
                 setNewRoomOrTemperature(room, temperature);
@@ -266,9 +263,10 @@ public class MainActivity extends AppCompatActivity {
                     saveParameters(newParams);
                     sysParams = newParams;
                     // vyžádáme nové načtení dat
+                    showProgressBar(true);
                     getConfigFromApi();
                     getTemperaturesFromApi();
-                    CToast.Info(this, "obnovuji data", 3);
+                    // CToast.Info(this, "obnovuji data", 3);
                 }
                 else {
                     CToast.Info(this, "parametry se nezměnily", 2);
@@ -282,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
                 appSettings = (CSetting) data.getSerializableExtra("newSettings");
                 saveConfiguration();
                 if (appSettings != null && appSettings.url != null) {
+                    showProgressBar(true);
                     getConfigFromApi();
                     getTemperaturesFromApi();
                 }
@@ -442,5 +441,15 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, SettingsActivity.class);
         intent.putExtra("AppSettings", appSettings);
         startActivityForResult(intent, 9);
+    }
+
+    void showProgressBar(Boolean show) {
+        ProgressBar pb = findViewById(R.id.progressBar);
+        if (show) {
+            pb.setVisibility(View.VISIBLE);
+        }
+        else {
+            pb.setVisibility(View.INVISIBLE);
+        }
     }
 }
