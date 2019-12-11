@@ -25,4 +25,5 @@
     <string name="loading">Loading …</string>
     <string name="error">Error</string>
     <string name="label_delta" translatable="false">Delta</string>
+    <string name="reload">reload</string>
 </resources>

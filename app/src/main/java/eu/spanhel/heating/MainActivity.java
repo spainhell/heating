@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TableLayout;
@@ -61,9 +62,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (!loadConfiguration()) {
             onClickMenuSetting(null);
-            //Intent intent = new Intent(this, SettingsActivity.class);
-            //intent.putExtra("AppSettings", appSettings);
-            //startActivityForResult(intent, 9);
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.putExtra("AppSettings", appSettings);
+            startActivityForResult(intent, 9);
         }
 
         if (appSettings.url != null) {
@@ -445,11 +446,20 @@ public class MainActivity extends AppCompatActivity {
 
     void showProgressBar(Boolean show) {
         ProgressBar pb = findViewById(R.id.progressBar);
+        ImageView iv = findViewById(R.id.imageReload);
         if (show) {
+            iv.setVisibility(View.INVISIBLE);
             pb.setVisibility(View.VISIBLE);
         }
         else {
             pb.setVisibility(View.INVISIBLE);
+            iv.setVisibility(View.VISIBLE);
         }
+    }
+
+    public void refresh(View view) {
+        showProgressBar(true);
+        getConfigFromApi();
+        getTemperaturesFromApi();
     }
 }

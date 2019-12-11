@@ -27,18 +27,16 @@ public class RoomHeatingActivity extends AppCompatActivity {
 
         etTemper = findViewById(R.id.editTemper);
 
+        Spinner roomsSpinner = findViewById(R.id.room_spinner);
+        roomsSpinner.setAdapter(null);
+
         if (heatingParams != null) {
-            Spinner roomsSpinner = findViewById(R.id.room_spinner);
-            roomsSpinner.setAdapter(null);
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, heatingParams.rooms);
             roomsSpinner.setAdapter(adapter);
             newTemperature = heatingParams.setTemperature;
             etTemper.setText(String.format(Locale.ENGLISH, "%.1f", newTemperature));
 
             for (int i = 0; i < heatingParams.rooms.size(); i++) {
-                //String r1 = heatingParams.selectedRoom;
-                //String r2 = heatingParams.rooms.get(i);
-
                 if (heatingParams.rooms.get(i).equals(heatingParams.selectedRoom)) {
                     roomsSpinner.setSelection(i);
                     break;
